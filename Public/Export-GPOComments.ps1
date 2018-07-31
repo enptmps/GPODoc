@@ -13,12 +13,16 @@ function Export-GPOComments {
         Path and name of new HTML report file
     .PARAMETER StyleSheet
         Path and name of custom CSS template file (default is /GPODoc/assets/default.css)
+    .PARAMETER DomainFQDN
+        Optional FQDN for target domain environment
     .EXAMPLE
         Export-GPOComments -GPOName '*' -ReportFile ".\gpo.htm"
     .EXAMPLE
         $GpoNames | Export-GPOComments -ReportFile ".\gpo.htm"
     .EXAMPLE
         Export-GPOComments -ReportFile ".\gpo.htm" -StyleSheet ".\mystyles.css"
+    .EXAMPLE
+        Export-GPOComments -ReportFile ".\gpo.htm" -StyleSheet ".\mystyles.css" -DomainFQDN "fabrikam.local"
     .NOTES
         1.1.2 - 1/3/2018 - David Stein
     #>
@@ -30,20 +34,20 @@ function Export-GPOComments {
             [ValidateNotNullOrEmpty()]
             [string] $ReportFile,
         [parameter(Mandatory = $False, HelpMessage = 'Path to custom CSS file')]
-            [string] $StyleSheet = ""
+            [string] $StyleSheet = "",
+        [parameter(Mandatory = $False, HelpMessage = "Domain FQDN")]
+            [string] $DomainFQDN = "$($env:USERDNSDOMAIN)"
     )
-    $ModuleData = Get-Module GPODoc
-    $ModuleVer  = $ModuleData.Version -join '.'
-    $ModulePath = $ModuleData.Path -replace 'GPODoc.psm1',''
+    $ModuleVer = Get-GpoDocVersion
     Write-Host "GPODoc $ModuleVer - https://github.com/Skatterbrainz/GPODoc" -ForegroundColor Cyan
 
     if ($GPOName -eq '*') {
         Write-Verbose "loading all policy objects: preferences"
-        $gpos = Get-GPO -All | Sort-Object -Property DisplayName
+        $gpos = Get-GPO -Domain $DomainFQDN -All | Sort-Object -Property DisplayName
     }
     else {
         Write-Verbose "loading specific policy objects"
-        $gpos = $GPOName | Foreach-Object {Get-GPO -Name $_}
+        $gpos = $GPOName | Foreach-Object {Get-GPO -Domain $DomainFQDN -Name $_}
     }
     if ($StyleSheet -eq "") {
         $StyleSheet = Join-Path $ModulePath -ChildPath "assets\default.css"
@@ -54,14 +58,14 @@ function Export-GPOComments {
     }
     $ReportTitle = "Group Policy Comments - $GPOName"
     $fragments = @()
-    $fragments += "<h1>Group Policy Report</h1>"
+    $fragments += "<h1>Group Policy Report: $DomainFQDN</h1>"
 
     foreach ($gpo in $gpos) {
         $gpoName = $gpo.DisplayName
         Write-Output "GPO: $gpoName"
-        $desc = Get-GpoComment -GPOName $gpoName -PolicyGroup Policy
-        $sett = Get-GpoComment -GPOName $gpoName -PolicyGroup Settings
-        $pref = Get-GpoComment -GPOName $gpoName -PolicyGroup Preferences
+        $desc = Get-GpoComment -GPOName $gpoName -PolicyGroup Policy -DomainFQDN $DomainFQDN
+        $sett = Get-GpoComment -GPOName $gpoName -PolicyGroup Settings -DomainFQDN $DomainFQDN
+        $pref = Get-GpoComment -GPOName $gpoName -PolicyGroup Preferences -DomainFQDN $DomainFQDN
         
         Write-Verbose $desc
 
