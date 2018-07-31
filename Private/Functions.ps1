@@ -16,7 +16,7 @@ function Get-GpoCommentFile {
     $filepath = Get-GpoCommentFile -Gpo $GPO
     
     .NOTES
-    
+		
     .INPUTS
         Group Policy Object reference
     .OUTPUTS
@@ -57,7 +57,7 @@ function Get-GppCommentPath {
     $gppPath = Get-GppCommentPath -Gpo $gpo -ConfigType 'Machine'
     
     .NOTES
-    General notes
+    
     #>
     param (
         [parameter(Mandatory=$True, HelpMessage="Group Policy Object")]
