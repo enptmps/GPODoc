@@ -11,6 +11,10 @@ function Get-GPOComment {
     .PARAMETER PolicyGroup
         What aspects of each GPO is to be queried
         List = Policy, Settings, Preferences
+    .PARAMETER DomainFQDN
+        Optional FQDN for target domain environment (implicit trust required)
+    .PARAMETER ShowInfo
+        Optional 
     .EXAMPLE
         Get-GPOComment -GPOName '*' -PolicyGroup 'Policy'
     .EXAMPLE
@@ -19,6 +23,10 @@ function Get-GPOComment {
         Get-GPOComment -GPOName '*' -PolicyGroup 'Settings'
     .EXAMPLE
         Get-GPOComment -GPOName '*' -PolicyGroup 'Preferences'
+    .EXAMPLE
+        Get-GPOComment -GPOName '*' -PolicyGroup 'Policy' -DomainFQDN "fabrikam.local"
+    .EXAMPLE
+        Get-GPOComment -GPOName '*' -PolicyGroup 'Policy' -DomainFQDN "fabrikam.local" -ShowInfo
     .NOTES
         version 1.1.2 - 1/3/2018 - David Stein
         version 1.2.0 - 8/1/2018 - David Stein
@@ -37,8 +45,7 @@ function Get-GPOComment {
             [switch] $ShowInfo
     )
     if ($ShowInfo) {
-        $ModuleData = Get-Module GPODoc
-        $ModuleVer  = $ModuleData.Version -join '.'
+        $ModuleVer  = Get-GpoDocVersion
         Write-Host "GPODoc $ModuleVer - https://github.com/Skatterbrainz/GPODoc" -ForegroundColor Cyan
     }
     switch ($PolicyGroup) {
@@ -52,7 +59,8 @@ function Get-GPOComment {
                 Write-Verbose "loading specific policy objects"
                 try {
                     $gpos = $GPOName | 
-                        Foreach-Object {Get-GPO -Domain $DomainFQDN -Name $_ -ErrorAction Stop | Select-Object Id, DisplayName, DomainName, Description}
+                        Foreach-Object {Get-GPO -Domain $DomainFQDN -Name $_ -ErrorAction Stop | 
+                            Select-Object Id, DisplayName, DomainName, Description}
                 }
                 catch {
                     Write-Warning "Unable to load GPO"
