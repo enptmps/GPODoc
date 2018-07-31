@@ -1,7 +1,8 @@
 # GPPDoc
-Version 1.1.2 - 2018.01.03.  Group Policy and Group Policy Preferences Documentation Tools.
-Version 1.2.0 - 2018.08.01.
-Available from the PowerShell Gallery. To import this module, use _Install-Module GPODoc_ and _Import-Module GPODoc_
+
+* Version 1.1.2 - 2018.01.03.  Group Policy and Group Policy Preferences Documentation Tools.
+* Version 1.2.0 - 2018.08.01.
+* Available from the PowerShell Gallery. To import this module, use _Install-Module GPODoc_ and _Import-Module GPODoc_
 
 ## Get-GPOComment
 
